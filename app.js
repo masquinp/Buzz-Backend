@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+require('dotenv').config();
+require('./models/connection');
+
+>>>>>>> master
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -8,6 +14,12 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
+<<<<<<< HEAD
+=======
+const cors = require('cors');
+app.use(cors());
+
+>>>>>>> master
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
