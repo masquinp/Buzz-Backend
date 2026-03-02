@@ -1,13 +1,25 @@
 const mongoose = require('mongoose');
 
+const carSchema = mongoose.Schema({
+ brand: String,
+ color: String,
+ model: String,
+ nbSeats: Number,
+ licencePlate: { 
+    type: String, 
+    required: true, // Empêche de créer une voiture sans plaque
+    uppercase: true, // Transforme automatiquement "ab-123-cd" en "AB-123-CD"
+    trim: true      // Enlève les espaces inutiles avant ou après
+ }
+});
+
 const userSchema = mongoose.Schema({
   firstname: String,
   username: String,
   password: String,
   email: String,
-  assignedTo: [String],
   token: String,
-  
+  car: carSchema,
 });
 
 const User = mongoose.model('users', userSchema);
