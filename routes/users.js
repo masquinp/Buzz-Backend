@@ -2,8 +2,8 @@ var express = require("express");
 var router = express.Router();
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+router.get("/", function (req, res, next) {
+  res.send("respond with a resource");
 });
 
 const User = require("../models/users");
@@ -12,7 +12,15 @@ const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
 
 router.post("/signup", (req, res) => {
-  if (!checkBody(req.body, ["username", "password"])) {
+  if (
+    !checkBody(req.body, [
+      "firstname",
+      "lastname",
+      "username",
+      "email",
+      "password",
+    ])
+  ) {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   }
@@ -29,7 +37,7 @@ router.post("/signup", (req, res) => {
         email: req.body.email,
         password: hash,
         token: uid2(32),
-        car: req.body.licencePlate
+         /* car: req.body.licencePlate
           ? {
               brand: req.body.brand,
               model: req.body.model,
@@ -38,6 +46,7 @@ router.post("/signup", (req, res) => {
               licencePlate: req.body.licencePlate,
             }
           : null,
+          */
       });
 
       newUser.save().then((newDoc) => {
@@ -51,12 +60,12 @@ router.post("/signup", (req, res) => {
 });
 
 router.post("/signin", (req, res) => {
-  if (!checkBody(req.body, ["username", "password"])) {
+  if (!checkBody(req.body, ["email", "password"])) {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   }
 
-  User.findOne({ username: req.body.username }).then((data) => {
+  User.findOne({ email: req.body.email}).then((data) => {
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
       res.json({ result: true, token: data.token });
     } else {
