@@ -32,6 +32,23 @@ router.post("/add", (req, res) => {
       return res.json({ result: false, error: "Utilisateur non trouvé" });
     }
 
+     Ride.findById(req.body.ride).then((ride) => {
+      if (!ride) {
+        return res.json({ result: false, error: "Trajet non trouvé" });
+      }
+
+      if (ride.status !== "open") {
+        return res.json({ result: false, error: "Le trajet n'est plus réservable" });
+      }
+
+      if (ride.placesLeft <= 0) {
+        return res.json({ result: false, error: "Plus de places disponibles" });
+      }
+
+      // 💰 simulation préautorisation (pire cas = 1 passager)
+      const maxAmount = Math.floor(ride.totalCost / 2);
+    });
+
     const newBooking = new Booking({
       message: req.body.message,
       status: req.body.status || "pending", // "pending" par défaut si vide
