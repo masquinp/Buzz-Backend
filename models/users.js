@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-/* const carSchema = mongoose.Schema({
+ const carSchema = mongoose.Schema({
  brand: String,
  color: String,
  model: String,
@@ -11,7 +11,7 @@ const mongoose = require('mongoose');
     trim: true      // Enlève les espaces inutiles avant ou après
  }
 });
-*/
+
 
 const userSchema = mongoose.Schema({
   firstname: String,
@@ -20,7 +20,7 @@ const userSchema = mongoose.Schema({
   password: String,
   email: String,
   token: String,
-  // car: carSchema,
+  car: carSchema,
 });
 
 const User = mongoose.model('users', userSchema);
