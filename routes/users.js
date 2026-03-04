@@ -37,7 +37,7 @@ router.post("/signup", (req, res) => {
         email: req.body.email,
         password: hash,
         token: uid2(32),
-         /* car: req.body.licencePlate
+          car: req.body.licencePlate
           ? {
               brand: req.body.brand,
               model: req.body.model,
@@ -46,7 +46,7 @@ router.post("/signup", (req, res) => {
               licencePlate: req.body.licencePlate,
             }
           : null,
-          */
+          // si licencePlate est fourni, il enregistre la voiture, sinon null
       });
 
       newUser.save().then((newDoc) => {

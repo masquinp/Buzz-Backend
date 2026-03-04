@@ -21,7 +21,7 @@ router.get("/:token", (req, res) => {
     Booking.find({ user: user._id })
       .populate("user", "ride")
       .then((getBookings) => {
-        res.json({ result: true, bookings: getBookings});
+        res.json({ result: true, bookings: getBookings });
       });
   });
 });
@@ -35,15 +35,22 @@ router.post("/add", async(req, res) => {       //crée une route POST donc on en
       return res.json({ result: false, error: "Utilisateur non trouvé" });
     }
 
+<<<<<<< HEAD
     const ride = await Ride.findById(req.body.ride);       //cherche le trajet par son _id
                                                        //Parce que la réservation doit être liée à un trajet précis
       if (!ride) {         //si l’ID est faux ou supprimé alors Mongo renvoie null
+=======
+    Ride.findById(req.body.ride).then((ride) => {
+      if (!ride) {
+>>>>>>> 61fd68d83b0a561a683436674ea220f1af284f48
         return res.json({ result: false, error: "Trajet non trouvé" });
       }
 
-      if (ride.status !== "open") {       //vérifie le champ status du ride, "open" = trajet disponible sinon "started" ou "cancelled", on refuse
-                                         //On ne réserve pas un trajet qui a déjà commencé / fini / annulé
-        return res.json({ result: false, error: "Le trajet n'est plus réservable" });
+      if (ride.status !== "open") {
+        return res.json({
+          result: false,
+          error: "Le trajet n'est plus réservable",
+        });
       }
 
        // nombre de places demandées (par défaut 1)
@@ -125,6 +132,5 @@ router.put("/updateStatus", (req, res) => {
     }
   });
 });
-
 
 module.exports = router;
