@@ -21,7 +21,7 @@ router.get("/:token", (req, res) => {
     Booking.find({ user: user._id })
       .populate("user", "ride")
       .then((getBookings) => {
-        res.json({ result: true, bookings: getBookings});
+        res.json({ result: true, bookings: getBookings });
       });
   });
 });
@@ -32,13 +32,16 @@ router.post("/add", (req, res) => {
       return res.json({ result: false, error: "Utilisateur non trouvé" });
     }
 
-     Ride.findById(req.body.ride).then((ride) => {
+    Ride.findById(req.body.ride).then((ride) => {
       if (!ride) {
         return res.json({ result: false, error: "Trajet non trouvé" });
       }
 
       if (ride.status !== "open") {
-        return res.json({ result: false, error: "Le trajet n'est plus réservable" });
+        return res.json({
+          result: false,
+          error: "Le trajet n'est plus réservable",
+        });
       }
 
       if (ride.placesLeft <= 0) {
@@ -87,6 +90,5 @@ router.put("/updateStatus", (req, res) => {
     }
   });
 });
-
 
 module.exports = router;

@@ -20,7 +20,7 @@ const rideSchema = mongoose.Schema({
     },
 
   user: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
-  driver: { type: mongoose.Schema.Types.ObjectId, ref: "drivers" },
+  // driver: { type: mongoose.Schema.Types.ObjectId, ref: "drivers" },
 },
 { timestamps: true }
 );
