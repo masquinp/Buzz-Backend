@@ -9,7 +9,8 @@ router.post("/add", async (req, res) => {
     !req.body.arrival ||
     !req.body.date ||
     !req.body.price ||
-    !req.body.placeAvailable ||
+    !req.body.placesTotal ||
+   // !req.body.placeAvailable ||
     !req.body.user
   ) {
     return res.json({
