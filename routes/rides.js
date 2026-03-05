@@ -2,10 +2,10 @@ const express = require("express"); //librairie qui permet de creer des routes (
 const router = express.Router(); //va contenir toutes les routes liées aux rides et sera branche dans app.js
 const Ride = require("../models/rides"); // import du modele Ride pour pouvoir creer un trajet, lire un trajet ou supprimer un trajet
 const User = require("../models/users"); //pour retrouver un utilisateur avec son token
+const Booking = require("../models/bookings");
 
 router.post("/add", async (req, res) => {
   if (
-<<<<<<< HEAD
   !req.body.departure ||
   !req.body.arrival ||
   !req.body.date ||
@@ -14,22 +14,12 @@ router.post("/add", async (req, res) => {
   !req.body.user ||
   !req.body.driver
 ) {    //verifie que tous les champs sont présents, si le champ est vide, undefined ou null alors ca bloque
-=======
-    !req.body.departure ||
-    !req.body.arrival ||
-    !req.body.date ||
-    !req.body.price ||
-    !req.body.placeAvailable ||
-    !req.body.user
-  ) {
->>>>>>> 61fd68d83b0a561a683436674ea220f1af284f48
     return res.json({
       result: false,
       error: "Remplir tous les champs.", 
     });
   }
 
-<<<<<<< HEAD
     // ajout margo : vérifier totalCost (centimes)
  const price = Number(req.body.price); 
  const placesTotal = Number(req.body.placesTotal);
@@ -37,11 +27,6 @@ router.post("/add", async (req, res) => {
  if (!price || price <= 0) {
     return res.json({ result: false, error: "Prix invalide" });
   }
-=======
-  // ajout margo : vérifier totalCost (centimes)
-  const placesTotal = Number(req.body.placesTotal); //transforme la valeur envoyée en Number car souvent envoyee par le front en string
-  const totalCost = Number(req.body.totalCost); //pareil
->>>>>>> 61fd68d83b0a561a683436674ea220f1af284f48
 
   if (!placesTotal || placesTotal <= 0) {
     //verifie que placesTotal est un nombre valide et positif
@@ -69,15 +54,41 @@ router.post("/add", async (req, res) => {
 
     user: req.body.user,
   });
-<<<<<<< HEAD
   
   const ride = await newRide.save();          //enregistre le ride en base
     res.json({ result: true, ride: ride });   //renvoie le ride créé au frontend
-=======
+});
 
-  const ride = await newRide.save(); //enregistre le ride en base
-  res.json({ result: true, ride: ride }); //renvoie le ride créé au frontend
->>>>>>> 61fd68d83b0a561a683436674ea220f1af284f48
+router.get("/search", async (req, res) => {
+
+  const departure = req.query.departure;   // req.query car le frontend fera une requête comme : GET /rides/search?departure=Paris&arrival=Lyon
+  const arrival = req.query.arrival;
+  const date = req.query.date;
+
+  const query = {
+    status: "open",
+    placesLeft: { $gt: 0 }
+  };
+
+  if (departure) {
+    query.departure = new RegExp(departure, "i");
+  }
+
+  if (arrival) {
+    query.arrival = new RegExp(arrival, "i");
+  }
+
+  if (date) {
+    query.date = new Date(date);
+  }
+
+  const rides = await Ride.find(query).sort({ date: 1 });
+
+  res.json({
+    result: true,
+    rides: rides
+  });
+
 });
 
 router.get("/:token", async (req, res) => {    
@@ -85,11 +96,7 @@ router.get("/:token", async (req, res) => {
     if (!user) {
       return res.json({ result: false, error: "Utilisateur non trouvé" });
     }
-<<<<<<< HEAD
     const ride = await Ride.find({ user: user._id });    //récupère tous les rides créés par cet utilisateur
-=======
-    const ride = await Ride.find({ user: user._id })   
->>>>>>> 61fd68d83b0a561a683436674ea220f1af284f48
       res.json({ result: true, rides: ride });
 });
 
@@ -107,7 +114,6 @@ router.delete("/delete/:rideId", async (req, res) => {
     }
 });
 
-<<<<<<< HEAD
 router.post("/:id/start", async (req, res) => {
   const ride = await Ride.findById(req.params.id);
 
@@ -159,6 +165,3 @@ router.post("/:id/start", async (req, res) => {
 });
 
 module.exports = router;
-=======
-module.exports = router;
->>>>>>> 61fd68d83b0a561a683436674ea220f1af284f48
