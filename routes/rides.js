@@ -20,7 +20,8 @@ router.post("/add", async (req, res) => {
     !req.body.arrival ||
     !req.body.date ||
     !req.body.price ||
-    !req.body.placeAvailable ||
+    !req.body.placesTotal ||
+   // !req.body.placeAvailable ||
     !req.body.user
   ) {
 >>>>>>> 46d2818e16630cbeb07b9ba11163c1eead6baebe
