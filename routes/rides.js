@@ -11,24 +11,19 @@ router.post("/add", (req, res) => {
     return res.json({ result: false, error: "Remplir tous les champs." });
   }
 
-  if (!placesTotal || placesTotal <= 0) {
+  if (placesTotal <= 0) {
     //verifie que placesTotal est un nombre valide et positif
     //placesTotal <= 0 verifie si 0 ou negatif
     return res.json({ result: false, error: "placesTotal invalide" });
   }
 
-  if (!user) {
-    return res.json({ result: false, error: "Utilisateur non trouvé" });
-  }
   const newRide = new Ride({
-    departure: req.body.departure,
-    arrival: req.body.arrival,
-    date: req.body.date,
-    price: req.body.price,
-    placesTotal: req.body.placesTotal,
-
-    user: User._id,
-    car: User.car,
+    departure,
+    arrival,
+    date,
+    price,
+    placesTotal,
+    user: user._id,
   });
 
   newRide.save().then((data) => {
