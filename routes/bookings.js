@@ -32,17 +32,31 @@ router.post("/add", (req, res) => {
       return res.json({ result: false, error: "Utilisateur non trouvé" });
     }
 
-    const newBooking = new Booking({
-      message: req.body.message,
-      status: req.body.status || "pending", // "pending" par défaut si vide
-      ride: req.body.ride,
-      user: user._id,
-    });
-    newBooking.save().then((savedBooking) => {
-      res.json({ result: true, booking: savedBooking });
-    });
+    //  On vérifie si la réservation existe déjà
+    Booking.findOne({ ride: req.body.ride, user: user._id }).then(
+      (existingBooking) => {
+        if (existingBooking) {
+          return res.json({
+            result: false,
+            error: "Vous avez déjà réservé ce trajet",
+          });
+        }
+
+        const newBooking = new Booking({
+          message: req.body.message,
+          seatsBooked: req.body.seatsBooked,
+          status: req.body.status || "pending", // "pending" par défaut si vide
+          ride: req.body.ride,
+          user: user._id,
+        });
+        newBooking.save().then((savedBooking) => {
+          res.json({ result: true, booking: savedBooking });
+        });
+      },
+    );
   });
 });
+
 router.delete("/delete/:bookingId", (req, res) => {
   // On utilise le token passé dans l'URL (params) pour savoir qui supprimer
   Booking.deleteOne({ _id: req.params.bookingId }).then((data) => {
