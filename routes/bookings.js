@@ -1,14 +1,9 @@
 var express = require("express");
 var router = express.Router();
-const Stripe = require("stripe");
 
 const Booking = require("../models/bookings");
 const User = require("../models/users");
 const Ride = require("../models/rides");
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: process.env.STRIPE_API_VERSION || "2023-10-16",
-});
 
 router.get("/", (req, res) => {
   Booking.find()

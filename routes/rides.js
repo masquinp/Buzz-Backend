@@ -4,94 +4,32 @@ const Ride = require("../models/rides"); // import du modele Ride pour pouvoir c
 const User = require("../models/users"); //pour retrouver un utilisateur avec son token
 const Booking = require("../models/bookings");
 
-router.post("/add", async (req, res) => {
+router.post("/add", (req, res) => {
   if (
     !req.body.departure ||
     !req.body.arrival ||
     !req.body.date ||
     !req.body.price ||
-    !req.body.placesTotal ||
+    !req.body.placeAvailable ||
     !req.body.user
   ) {
-    //verifie que tous les champs sont présents, si le champ est vide, undefined ou null alors ca bloque
     return res.json({
       result: false,
       error: "Remplir tous les champs.",
     });
   }
 
-  // ajout margo : vérifier totalCost (centimes)
-  const price = Number(req.body.price);
-  const placesTotal = Number(req.body.placesTotal);
-
-  if (!price || price <= 0) {
-    return res.json({ result: false, error: "Prix invalide" });
-  }
-
-  if (!placesTotal || placesTotal <= 0) {
-    //verifie que placesTotal est un nombre valide et positif
-    //placesTotal <= 0 verifie si 0 ou negatif
-    return res.json({ result: false, error: "placesTotal invalide" });
-  }
-  const user = await User.findOne({ token: req.body.user });
-
-  if (!user) {
-    return res.json({ result: false, error: "Utilisateur non trouvé" });
-  }
-
-  // calcul automatique du coût total (conducteur + 1 passager au pire cas)
-  const totalCost = price * 2;
-
   const newRide = new Ride({
     departure: req.body.departure,
     arrival: req.body.arrival,
     date: req.body.date,
-
-    price: price,
-
-    // ajouts margaux nécessaires au paiement simulé
-    placesTotal: placesTotal,
-    placesLeft: placesTotal,
-
-    totalCost: totalCost,
-
-    status: "open",
-
-    user: user._id,
-    car: user.car,
+    price: req.body.price,
+    placeAvailable: req.body.placeAvailable,
+    user: req.body.user,
   });
 
-  const ride = await newRide.save(); //enregistre le ride en base
-  res.json({ result: true, ride: ride }); //renvoie le ride créé au frontend
-});
-
-router.get("/search", async (req, res) => {
-  const departure = req.query.departure; // req.query car le frontend fera une requête comme : GET /rides/search?departure=Paris&arrival=Lyon
-  const arrival = req.query.arrival;
-  const date = req.query.date;
-
-  const query = {
-    status: "open",
-    placesLeft: { $gt: 0 },
-  };
-
-  if (departure) {
-    query.departure = new RegExp(departure, "i");
-  }
-
-  if (arrival) {
-    query.arrival = new RegExp(arrival, "i");
-  }
-
-  if (date) {
-    query.date = new Date(date);
-  }
-
-  const rides = await Ride.find(query).sort({ date: 1 });
-
-  res.json({
-    result: true,
-    rides: rides,
+  newRide.save().then((data) => {
+    res.json({ result: true, ride: data });
   });
 });
 
@@ -118,57 +56,5 @@ router.delete("/delete/:rideId", async (req, res) => {
   }
 });
 
-router.post("/:id/start", async (req, res) => {
-  const ride = await Ride.findById(req.params.id);
-
-  if (!ride) {
-    return res.json({ result: false, error: "Ride introuvable" });
-  }
-
-  if (ride.status !== "open") {
-    return res.json({ result: false, error: "Ride non démarrable" });
-  }
-
-  const bookings = await Booking.find({
-    ride: ride._id,
-    status: "authorized",
-  });
-
-  if (bookings.length === 0) {
-    return res.json({ result: false, error: "Aucun passager" });
-  }
-
-  // calcul du nombre total de passagers
-  let n = 0;
-  for (let b of bookings) {
-    n += b.seatsBooked;
-  }
-
-  const finalPricePerSeat = Math.floor(ride.totalCost / (n + 1));
-
-  if (n <= 0) {
-    return res.json({
-      result: false,
-      error: "Nombre de places réservées invalide",
-    });
-  }
-
-  // chaque booking paie seatsBooked * finalPricePerSeat
-  for (let b of bookings) {
-    b.status = "captured";
-    b.finalAmount = finalPricePerSeat * b.seatsBooked;
-    await b.save();
-  }
-
-  ride.status = "started";
-  await ride.save();
-
-  res.json({
-    result: true,
-    passengers: n,
-    pricePerSeat: finalPricePerSeat,
-    message: "Prix final calculé",
-  });
-});
 
 module.exports = router;
