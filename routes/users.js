@@ -150,14 +150,11 @@ router.post("/addCar", (req, res) => {
 
 router.post("/upload", (req, res) => {
   const photoPath = `./tmp/${uniqid()}.jpg`;
-  console.log("token reçu :", req.body.token); // 👈
-  console.log("fichier reçu :", req.files?.photoFromFront); // 👈
 
   req.files.photoFromFront.mv(photoPath).then(() => {
     cloudinary.uploader.upload(photoPath).then((resultCloudinary) => {
       fs.unlinkSync(photoPath); // On cherche l'utilisateur grâce à son token
       User.findOne({ token: req.body.token }).then((user) => {
-        console.log("user trouvé :", user); // 👈
         // On ajoute la nouvelle URL à la fin du tableau photos existant
         user.photos = [...user.photos, resultCloudinary.secure_url];
         // On sauvegarde l'utilisateur avec la nouvelle photo
@@ -172,7 +169,6 @@ router.post("/upload", (req, res) => {
 router.delete("/deletePicture/:token", (req, res) => {
   // On utilise le token passé dans l'URL (params) pour savoir qui supprimer
   User.findOne({ photo: req.params.photo }).then((data) => {
-    
     // deletedCount vaut 1 si quelqu'un a été supprimé, 0 sinon
     if (data.deletedCount > 0) {
       res.json({ result: true, message: "Photo supprimé avec succès" });
@@ -181,6 +177,5 @@ router.delete("/deletePicture/:token", (req, res) => {
     }
   });
 });
-
 
 module.exports = router;

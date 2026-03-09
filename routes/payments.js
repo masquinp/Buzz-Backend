@@ -13,7 +13,8 @@ router.post("/setup-intent", async (req, res) => {
     const { token } = req.body;
 
     const user = await User.findOne({ token });
-    if (!user) return res.json({ result: false, error: "Utilisateur non trouvé" });
+    if (!user)
+      return res.json({ result: false, error: "Utilisateur non trouvé" });
 
     // customer stripe
     if (!user.stripeCustomerId) {
@@ -27,7 +28,7 @@ router.post("/setup-intent", async (req, res) => {
     // ephemeral key requis pour PaymentSheet
     const ephemeralKey = await stripe.ephemeralKeys.create(
       { customer: user.stripeCustomerId },
-      { apiVersion: process.env.STRIPE_API_VERSION || "2023-10-16" }
+      { apiVersion: process.env.STRIPE_API_VERSION || "2023-10-16" },
     );
 
     const setupIntent = await stripe.setupIntents.create({
@@ -53,7 +54,8 @@ router.post("/attach-default-payment-method", async (req, res) => {
     const { token, setupIntentId } = req.body;
 
     const user = await User.findOne({ token });
-    if (!user) return res.json({ result: false, error: "Utilisateur non trouvé" });
+    if (!user)
+      return res.json({ result: false, error: "Utilisateur non trouvé" });
 
     if (!user.stripeCustomerId) {
       return res.json({ result: false, error: "Customer Stripe manquant" });
@@ -63,7 +65,10 @@ router.post("/attach-default-payment-method", async (req, res) => {
     const paymentMethodId = setupIntent.payment_method;
 
     if (!paymentMethodId) {
-      return res.json({ result: false, error: "payment_method introuvable dans SetupIntent" });
+      return res.json({
+        result: false,
+        error: "payment_method introuvable dans SetupIntent",
+      });
     }
 
     // attacher au customer (au cas où)
@@ -79,10 +84,14 @@ router.post("/attach-default-payment-method", async (req, res) => {
     user.defaultPaymentMethodId = paymentMethodId;
     await user.save();
 
-  res.json({
-  result: true,
-  message: "Carte enregistrée et définie par défaut",
-  defaultPaymentMethodId: paymentMethodId,
+    res.json({
+      result: true,
+      message: "Carte enregistrée et définie par défaut",
+      defaultPaymentMethodId: paymentMethodId,
+    });
+  } catch (err) {
+    res.json({ result: false, error: err.message });
+  }
 });
 
 // 3) Préautorisation (PaymentIntent manual capture)
@@ -91,7 +100,8 @@ router.post("/authorize", async (req, res) => {
     const { token, maxAmount, metadata } = req.body;
 
     const user = await User.findOne({ token });
-    if (!user) return res.json({ result: false, error: "Utilisateur non trouvé" });
+    if (!user)
+      return res.json({ result: false, error: "Utilisateur non trouvé" });
 
     if (!user.stripeCustomerId || !user.defaultPaymentMethodId) {
       return res.json({ result: false, error: "Aucune carte enregistrée" });
