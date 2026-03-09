@@ -5,27 +5,30 @@ const User = require("../models/users"); //pour retrouver un utilisateur avec so
 const Booking = require("../models/bookings");
 
 router.post("/add", (req, res) => {
-  if (
-    !req.body.departure ||
-    !req.body.arrival ||
-    !req.body.date ||
-    !req.body.price ||
-    !req.body.placeAvailable ||
-    !req.body.user
-  ) {
-    return res.json({
-      result: false,
-      error: "Remplir tous les champs.",
-    });
+  const { departure, arrival, date, price, placesTotal, user } = req.body;
+
+  if (!departure || !arrival || !date || !price || !placesTotal || !user) {
+    return res.json({ result: false, error: "Remplir tous les champs." });
   }
 
+  if (!placesTotal || placesTotal <= 0) {
+    //verifie que placesTotal est un nombre valide et positif
+    //placesTotal <= 0 verifie si 0 ou negatif
+    return res.json({ result: false, error: "placesTotal invalide" });
+  }
+
+  if (!user) {
+    return res.json({ result: false, error: "Utilisateur non trouvé" });
+  }
   const newRide = new Ride({
     departure: req.body.departure,
     arrival: req.body.arrival,
     date: req.body.date,
     price: req.body.price,
-    placeAvailable: req.body.placeAvailable,
-    user: req.body.user,
+    placesTotal: req.body.placesTotal,
+
+    user: User._id,
+    car: User.car,
   });
 
   newRide.save().then((data) => {
@@ -55,6 +58,5 @@ router.delete("/delete/:rideId", async (req, res) => {
     res.json({ result: false, error: "Trajet non trouvé" });
   }
 });
-
 
 module.exports = router;
