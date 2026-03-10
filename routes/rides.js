@@ -14,20 +14,29 @@ router.post("/add", (req, res) => {
   if (placesTotal <= 0) {
     //verifie que placesTotal est un nombre valide et positif
     //placesTotal <= 0 verifie si 0 ou negatif
-    return res.json({ result: false, error: "placesTotal invalide" });
+    return res.json({
+      result: false,
+      error: "Nombre de places disponibleinvalide",
+    });
   }
 
-  const newRide = new Ride({
-    departure,
-    arrival,
-    date,
-    price,
-    placesTotal,
-    user: user._id,
-  });
+  User.findOne({ token: user }).then((userData) => {
+    if (!userData) {
+      return res.json({ result: false, error: "Utilisateur non trouvé" });
+    }
 
-  newRide.save().then((data) => {
-    res.json({ result: true, ride: data });
+    const newRide = new Ride({
+      departure,
+      arrival,
+      date,
+      price,
+      placesTotal,
+      user: userData._id,
+    });
+
+    newRide.save().then((data) => {
+      res.json({ result: true, ride: data });
+    });
   });
 });
 
