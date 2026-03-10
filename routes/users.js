@@ -2,6 +2,8 @@ var express = require("express");
 var router = express.Router();
 
 const User = require("../models/users");
+const Message = require("../models/messages");
+
 const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
@@ -164,17 +166,17 @@ router.post("/upload", (req, res) => {
   });
 });
 
-router.delete("/deletePicture/:token", (req, res) => {
-  // On utilise le token passé dans l'URL (params) pour savoir qui supprimer
-  User.findOne({ photo: req.params.photo }).then((data) => {
-    // deletedCount vaut 1 si quelqu'un a été supprimé, 0 sinon
-    if (data.deletedCount > 0) {
-      res.json({ result: true, message: "Photo supprimé avec succès" });
-    } else {
-      res.json({ result: false, error: "Photo non trouvé" });
-    }
-  });
-});
+// router.delete("/deletePicture/:token", (req, res) => {
+//   // On utilise le token passé dans l'URL (params) pour savoir qui supprimer
+//   User.findOne({ photo: req.params.photo }).then((data) => {
+//     // deletedCount vaut 1 si quelqu'un a été supprimé, 0 sinon
+//     if (data.deletedCount > 0) {
+//       res.json({ result: true, message: "Photo supprimé avec succès" });
+//     } else {
+//       res.json({ result: false, error: "Photo non trouvé" });
+//     }
+//   });
+// });
 
 router.post("/update", async (req, res) => {
   const updateData = {
@@ -198,5 +200,6 @@ router.post("/update", async (req, res) => {
     res.json({ result: false });
   }
 });
+
 
 module.exports = router;
