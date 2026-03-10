@@ -176,4 +176,27 @@ router.delete("/deletePicture/:token", (req, res) => {
   });
 });
 
+router.post("/update", async (req, res) => {
+  const updateData = {
+    firstname: req.body.firstname,
+    lastname: req.body.lastname,
+    username: req.body.username,
+    email: req.body.email,
+  };
+
+  if (req.body.password) {
+    const hash = bcrypt.hashSync(req.body.password, 10);
+    updateData.password = hash;
+  }
+
+  const user = await User.findOne({ token: req.body.token });
+
+  const result = await User.updateOne({ token: req.body.token }, updateData);
+  if (result.modifiedCount > 0) {
+    res.json({ result: true });
+  } else {
+    res.json({ result: false });
+  }
+});
+
 module.exports = router;
