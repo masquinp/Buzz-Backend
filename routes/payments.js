@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Payment = require("../models/payments");
-
+const User = require("../models/users");
 
 router.get("/:token", (req, res) => {
   User.findOne({ token: req.params.token }).then((user) => {
@@ -33,7 +33,7 @@ router.post("/add", (req, res) => {
 
         const newPayment = new Payment({
           amount: req.body.amount,
-          status: req.body.status || "pending",
+          status: req.body.status, // || "pending",
           booking: req.body.booking,
           user: user._id,
         });
