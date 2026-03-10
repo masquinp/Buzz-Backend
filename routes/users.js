@@ -23,10 +23,17 @@ router.post("/signup", (req, res) => {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   }
+  // un utilisateur ne peut pas s'inscrire avec un nom d'utilisateur ou un email déjà utilisé par quelqu'un d'autre
+  User.findOne({ username: req.body.username }).then((username) => {
+    if (username !== null) {
+      return res.json({ result: false, error: "Username déjà pris" });
+    }
 
-  // Check if the user has not already been registered
-  User.findOne({ username: req.body.username }).then((data) => {
-    if (data === null) {
+    User.findOne({ email: req.body.email }).then((email) => {
+      if (email !== null) {
+        return res.json({ result: false, error: "Email déjà utilisé" });
+      }
+
       const hash = bcrypt.hashSync(req.body.password, 10);
 
       const newUser = new User({
@@ -45,7 +52,6 @@ router.post("/signup", (req, res) => {
               licencePlate: req.body.licencePlate,
             }
           : null,
-        // si licencePlate est fourni, il enregistre la voiture, sinon null
       });
 
       newUser.save().then((newDoc) => {
@@ -55,10 +61,7 @@ router.post("/signup", (req, res) => {
           user: { _id: newDoc._id, email: newDoc.email },
         });
       });
-    } else {
-      // User already exists in database
-      res.json({ result: false, error: "User already exists" });
-    }
+    });
   });
 });
 
@@ -145,14 +148,11 @@ router.post("/addCar", (req, res) => {
 
 router.post("/upload", (req, res) => {
   const photoPath = `./tmp/${uniqid()}.jpg`;
-  console.log("token reçu :", req.body.token); // 👈
-  console.log("fichier reçu :", req.files?.photoFromFront); // 👈
 
   req.files.photoFromFront.mv(photoPath).then(() => {
     cloudinary.uploader.upload(photoPath).then((resultCloudinary) => {
       fs.unlinkSync(photoPath); // On cherche l'utilisateur grâce à son token
       User.findOne({ token: req.body.token }).then((user) => {
-        console.log("user trouvé :", user); // 👈
         // On ajoute la nouvelle URL à la fin du tableau photos existant
         user.photos = [...user.photos, resultCloudinary.secure_url];
         // On sauvegarde l'utilisateur avec la nouvelle photo

@@ -12,6 +12,7 @@ var bookingRouter = require("./routes/bookings");
 var reviewRouter = require("./routes/reviews");
 var rideRouter = require("./routes/rides");
 var conversationsRouter = require("./routes/conversations");
+var paymentRouter = require("./routes/payments");
 
 var app = express();
 
@@ -34,5 +35,6 @@ app.use("/bookings", bookingRouter);
 app.use("/rides", rideRouter);
 app.use("/reviews", reviewRouter);
 app.use("/conversations", conversationsRouter);
+app.use("/payments", paymentRouter);
 
 module.exports = app;
