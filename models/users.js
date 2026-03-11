@@ -32,6 +32,7 @@ const userSchema = mongoose.Schema({
   token: String,
   car: carSchema,
   photos: [String], // pour upload les photos
+  avatar: { type: String, default: 'monImage' }
 });
 
 const User = mongoose.model("users", userSchema);
