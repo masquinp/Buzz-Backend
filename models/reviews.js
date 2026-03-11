@@ -4,7 +4,8 @@ const reviewSchema = mongoose.Schema({
   note: String,
   message: String,
   ride: { type: mongoose.Schema.Types.ObjectId, ref: "rides" },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+  reviewer: { type: mongoose.Schema.Types.ObjectId, ref: "users" }, // on récupère l'id de la personne qui poste l'avis
+  reviewed: { type: mongoose.Schema.Types.ObjectId, ref: "users" }, // on récupère l'id de la personne qui reçoit l'avis (le chauffeur du trajet)
 });
 
 const Review = mongoose.model("reviews", reviewSchema);
