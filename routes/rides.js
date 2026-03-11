@@ -1,7 +1,7 @@
-const express = require("express"); //librairie qui permet de creer des routes (API backend)
-const router = express.Router(); //va contenir toutes les routes liées aux rides et sera branche dans app.js
-const Ride = require("../models/rides"); // import du modele Ride pour pouvoir creer un trajet, lire un trajet ou supprimer un trajet
-const User = require("../models/users"); //pour retrouver un utilisateur avec son token
+const express = require("express");
+const router = express.Router();
+const Ride = require("../models/rides");
+const User = require("../models/users"); 
 const Booking = require("../models/bookings");
 
 router.post("/add", (req, res) => {
@@ -12,8 +12,6 @@ router.post("/add", (req, res) => {
   }
 
   if (placesTotal <= 0) {
-    //verifie que placesTotal est un nombre valide et positif
-    //placesTotal <= 0 verifie si 0 ou negatif
     return res.json({
       result: false,
       error: "Nombre de places disponibleinvalide",
@@ -45,7 +43,7 @@ router.get("/:token", async (req, res) => {
   if (!user) {
     return res.json({ result: false, error: "Utilisateur non trouvé" });
   }
-  const ride = await Ride.find({ user: user._id }); //récupère tous les rides créés par cet utilisateur
+  const ride = await Ride.find({ user: user._id }); 
   res.json({ result: true, rides: ride });
 });
 
