@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const reviewSchema = mongoose.Schema({
   note: String,
   message: String,
-  ride: { type: mongoose.Schema.Types.ObjectId, ref: "rides" }, // type ObjectId pour lier au document correspondant dans la collection "rides"
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "users" }, // type ObjectId pour lier au document correspondant dans la collection "users"
+  reviewer: { type: mongoose.Schema.Types.ObjectId, ref: "users" }, // on récupère l'id de la personne qui poste l'avis
+  reviewed: { type: mongoose.Schema.Types.ObjectId, ref: "users" }, // on récupère l'id de la personne qui reçoit l'avis (le chauffeur du trajet)
 });
 
 const Review = mongoose.model("reviews", reviewSchema);
