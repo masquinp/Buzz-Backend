@@ -5,7 +5,8 @@ const messageSchema = mongoose.Schema(
     username: String,
     message: String,
     booking: { type: mongoose.Schema.Types.ObjectId, ref: "bookings" },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+    sender: { type: mongoose.Schema.Types.ObjectId, ref: "users" }, // pour savoir qui a envoyé le message
+    receiver: { type: mongoose.Schema.Types.ObjectId, ref: "users" }, // pour savoir qui doit recevoir le message
   },
   { timestamps: true },
 );
