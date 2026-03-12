@@ -16,10 +16,19 @@ router.get("/", (req, res) => {
 router.get("/:token", (req, res) => {
   User.findOne({ token: req.params.token }).then((user) => {
     if (!user) {
+      // Si aucun utilisateur n'est trouvé avec ce token, on retourne une erreur
       return res.json({ result: false, error: "Utilisateur non trouvé" });
     }
     Booking.find({ user: user._id })
-      .populate("ride")
+      // .populate("ride") // on récupère les infos du trajet associé à chaque réservation
+      // .populate("ride.user", "firstname lastname avatar") // on récupère les infos du conducteur associé à chaque trajet
+      .populate({
+        path: "ride",
+        populate: {
+          path: "user",
+          select: "firstname lastname avatar car",
+        },
+      })
       .then((getBookings) => {
         res.json({ result: true, bookings: getBookings });
       });
@@ -40,12 +49,11 @@ router.post("/add", (req, res) => {
             result: false,
             error: "Vous avez déjà réservé ce trajet",
           });
-        }
+        } // si on a déjà une réservation pour ce trajet et cet utilisateur, on retourne une erreur
 
         const newBooking = new Booking({
           message: req.body.message,
           seatsBooked: req.body.seatsBooked,
-          status: req.body.status || "pending", // "pending" par défaut si vide
           ride: req.body.ride,
           user: user._id,
         });
@@ -58,7 +66,7 @@ router.post("/add", (req, res) => {
 });
 
 router.delete("/delete/:bookingId", (req, res) => {
-  // On utilise le token passé dans l'URL (params) pour savoir qui supprimer
+  // On utilise le token passé dans l'URL (params) pour savoir qui supprime la réservation, et on utilise l'ID de la réservation pour savoir laquelle supprimer
   Booking.deleteOne({ _id: req.params.bookingId }).then((data) => {
     // deletedCount vaut 1 si quelqu'un a été supprimé, 0 sinon
     if (data.deletedCount > 0) {
@@ -69,7 +77,7 @@ router.delete("/delete/:bookingId", (req, res) => {
   });
 });
 
-// route qui sert à modifier le statut de la réservation, (accepter ou refuser)
+// à utiliser côté conducteur pour accepter/refuser une réservation (et à l'améliorer)
 router.put("/updateStatus", (req, res) => {
   // On cherche le booking par son ID envoyé dans le body
   Booking.findById(req.body.bookingId).then((data) => {

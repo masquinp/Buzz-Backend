@@ -4,7 +4,7 @@ const carSchema = mongoose.Schema({
   brand: String,
   color: String,
   model: String,
-  nbSeats: Number,
+  nbSeats: Number, // nombre de places dans la voiture
   licencePlate: {
     type: String,
     uppercase: true, // Transforme automatiquement "ab-123-cd" en "AB-123-CD"
@@ -21,7 +21,10 @@ const userSchema = mongoose.Schema({
     required: true, // Le nom d'utilisateur est obligatoire
     trim: true, // Enlève les espaces inutiles avant ou après
   },
-  password: String,
+  password: {
+    type: String,
+    required: true, // Le mot de passe est obligatoire
+  },
   email: {
     type: String,
     unique: true, // Assure que l'email est unique
@@ -32,7 +35,7 @@ const userSchema = mongoose.Schema({
   token: String,
   car: carSchema,
   photos: [String], // pour upload les photos
-  avatar: { type: String, default: 'monImage' }
+  avatar: { type: String, default: "monImage" },
 });
 
 const User = mongoose.model("users", userSchema);

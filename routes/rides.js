@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Ride = require("../models/rides");
-const User = require("../models/users"); 
+const User = require("../models/users");
 const Booking = require("../models/bookings");
 
 router.post("/add", (req, res) => {
@@ -11,15 +11,16 @@ router.post("/add", (req, res) => {
     return res.json({ result: false, error: "Remplir tous les champs." });
   }
 
+  // on vérifie que le nombre de places est un nombre positif
   if (placesTotal <= 0) {
     return res.json({
       result: false,
-      error: "Nombre de places disponibleinvalide",
+      error: "Nombre de places disponible invalide",
     });
   }
 
-  User.findOne({ token: user }).then((userData) => {
-    if (!userData) {
+  User.findOne({ token: user }).then((user) => {
+    if (!user) {
       return res.json({ result: false, error: "Utilisateur non trouvé" });
     }
 
@@ -29,7 +30,7 @@ router.post("/add", (req, res) => {
       date,
       price,
       placesTotal,
-      user: userData._id,
+      user: user._id, // on associe le trajet à l'id de l'utilisateur qui l'a créé
     });
 
     newRide.save().then((data) => {
@@ -43,12 +44,12 @@ router.get("/:token", async (req, res) => {
   if (!user) {
     return res.json({ result: false, error: "Utilisateur non trouvé" });
   }
-  const ride = await Ride.find({ user: user._id }); 
+  const ride = await Ride.find({ user: user._id });
   res.json({ result: true, rides: ride });
 });
 
 router.get("/", async (req, res) => {
-  const rides = await Ride.find().populate("user", "firstname lastname car");
+  const rides = await Ride.find().populate("user", "firstname lastname car"); // pour associer les infos de l'utilisateur (le chauffeur) à chaque trajet
   res.json({ result: true, rides });
 });
 

@@ -8,7 +8,8 @@ const messageSchema = mongoose.Schema(
     sender: { type: mongoose.Schema.Types.ObjectId, ref: "users" }, // pour savoir qui a envoyé le message
     receiver: { type: mongoose.Schema.Types.ObjectId, ref: "users" }, // pour savoir qui doit recevoir le message
   },
-  { timestamps: true },
+  { timestamps: true }, // ajoute automatiquement createdAt et updatedAt
+
 );
 
 const Message = mongoose.model("messages", messageSchema);

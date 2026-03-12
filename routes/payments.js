@@ -9,7 +9,7 @@ router.get("/:token", (req, res) => {
       return res.json({ result: false, error: "Utilisateur non trouvé" });
     }
     Payment.find({ user: user._id })
-      .populate("booking")
+      .populate("booking") // pour associer les infos de la réservation au paiement
       .then((getPayments) => {
         res.json({ result: true, payments: getPayments });
       });
@@ -21,7 +21,7 @@ router.post("/add", (req, res) => {
     if (!user) {
       return res.json({ result: false, error: "Utilisateur non trouvé" });
     }
-
+    // On vérifie si l'utilisateur a déjà payé pour cette réservation
     Payment.findOne({ booking: req.body.booking, user: user._id }).then(
       (existingPayment) => {
         if (existingPayment) {

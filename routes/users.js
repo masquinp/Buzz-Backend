@@ -13,6 +13,7 @@ const fs = require("fs");
 router.post("/signup", (req, res) => {
   if (
     !checkBody(req.body, [
+      // les champs obligatoires pour s'inscrire sont :
       "firstname",
       "lastname",
       "username",
@@ -26,7 +27,7 @@ router.post("/signup", (req, res) => {
   // un utilisateur ne peut pas s'inscrire avec un nom d'utilisateur ou un email déjà utilisé par quelqu'un d'autre
   User.findOne({ username: req.body.username }).then((username) => {
     if (username !== null) {
-      return res.json({ result: false, error: "Username déjà pris" });
+      return res.json({ result: false, error: "Nom d'utilisateur déjà pris" });
     }
 
     User.findOne({ email: req.body.email }).then((email) => {
@@ -34,24 +35,22 @@ router.post("/signup", (req, res) => {
         return res.json({ result: false, error: "Email déjà utilisé" });
       }
 
-      const hash = bcrypt.hashSync(req.body.password, 10);
+      const hash = bcrypt.hashSync(req.body.password, 10); // on hash le mot de passe pour le stocker de manière sécurisée dans la base de données
 
       const newUser = new User({
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         username: req.body.username,
         email: req.body.email,
-        password: hash,
+        password: hash, // on stocke le mot de passe de manière sécurisée grâce à bcrypt
         token: uid2(32),
-        car: req.body.licencePlate
-          ? {
-              brand: req.body.brand,
-              model: req.body.model,
-              color: req.body.color,
-              nbSeats: req.body.nbSeats,
-              licencePlate: req.body.licencePlate,
-            }
-          : null,
+        car: {
+          brand: req.body.brand,
+          model: req.body.model,
+          color: req.body.color,
+          nbSeats: req.body.nbSeats,
+          licencePlate: req.body.licencePlate,
+        },
       });
 
       newUser.save().then((newDoc) => {
@@ -70,7 +69,7 @@ router.post("/signin", (req, res) => {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   }
-
+  // bycrypt.compareSync() permet de comparer le mot de passe entré par l'utilisateur (en clair) avec le hash enregistré dans la base de données
   User.findOne({ username: req.body.username }).then((data) => {
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
       res.json({
@@ -106,7 +105,7 @@ router.delete("/delete/:token", (req, res) => {
 });
 
 router.post("/addCar", (req, res) => {
-  // 1. On vérifie si tous les champs sont bien remplis dans le corps de la requête (req.body)
+  // on vérifie si tous les champs sont bien remplis dans le req.body
   if (
     !checkBody(req.body, [
       "token",
@@ -118,15 +117,15 @@ router.post("/addCar", (req, res) => {
     ])
   ) {
     res.json({ result: false, error: "Champs manquants" });
-    return; // On arrête tout si un champ manque
+    return; // on arrête tout si un champ manque
   }
 
-  // 2. On cherche l'utilisateur dans la base de données grâce à son token
+  // on cherche l'utilisateur dans la base de données grâce à son token
   User.findOne({ token: req.body.token }).then((data) => {
     if (data) {
-      // Si on a trouvé l'utilisateur (data n'est pas nul) :
+      // si on a trouvé l'utilisateur (data n'est pas nul) :
 
-      // On remplit l'objet "car" de cet utilisateur avec les infos reçues du frontend
+      // on remplit l'objet "car" de cet utilisateur avec les infos reçues du frontend
       data.car = {
         brand: req.body.brand,
         model: req.body.model,
@@ -148,13 +147,13 @@ router.post("/addCar", (req, res) => {
 });
 
 router.post("/upload", (req, res) => {
-  const photoPath = `./tmp/${uniqid()}.jpg`;
+  const photoPath = `./tmp/${uniqid()}.jpg`; // on crée un chemin temporaire pour stocker la photo reçue du frontend avant de l'uploader sur Cloudinary
 
   req.files.photoFromFront.mv(photoPath).then(() => {
     cloudinary.uploader.upload(photoPath).then((resultCloudinary) => {
-      fs.unlinkSync(photoPath); // On cherche l'utilisateur grâce à son token
+      fs.unlinkSync(photoPath); // on supprime la photo du dossier tmp après l'avoir uploadée sur Cloudinary
       User.findOne({ token: req.body.token }).then((user) => {
-        // On ajoute la nouvelle URL à la fin du tableau photos existant
+        // on ajoute la nouvelle URL à la fin du tableau photos existant
         user.photos = [...user.photos, resultCloudinary.secure_url];
         // On sauvegarde l'utilisateur avec la nouvelle photo
         user.save().then(() => {
@@ -165,15 +164,14 @@ router.post("/upload", (req, res) => {
   });
 });
 
-router.delete("/deletePicture/:token", (req, res) => {
-  // On utilise le token passé dans l'URL (params) pour savoir qui supprimer
-  User.findOne({ photo: req.params.photo }).then((data) => {
-    // deletedCount vaut 1 si quelqu'un a été supprimé, 0 sinon
-    if (data.deletedCount > 0) {
-      res.json({ result: true, message: "Photo supprimé avec succès" });
-    } else {
-      res.json({ result: false, error: "Photo non trouvé" });
-    }
+router.delete("/deletePicture", (req, res) => {
+  User.findOne({ token: req.body.token }).then((user) => {
+    if (!user) return res.json({ result: false, error: "Utilisateur non trouvé" });
+
+    user.photos = user.photos.filter((photo) => photo !== req.body.url);
+    user.save().then(() => {
+      res.json({ result: true });
+    });
   });
 });
 

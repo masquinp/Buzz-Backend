@@ -9,7 +9,7 @@ router.post("/add", async (req, res) => {
   if (!user)
     return res.json({ result: false, error: "Utilisateur non trouvé" });
 
-  // On récupère le trajet pour avoir l'id du chauffeur
+  // on récupère le trajet pour avoir l'id du chauffeur
   const ride = await Ride.findOne({ _id: req.body.ride });
   if (!ride) return res.json({ result: false, error: "Trajet non trouvé" });
 
@@ -33,9 +33,9 @@ router.get("/:token", async (req, res) => {
 
   // Les reviews que cet utilisateur a reçues
   const reviews = await Review.find({ reviewed: user._id })
-    .populate("ride")
-    .populate("reviewer", "username firstname lastname")
-    .populate("reviewed", "username firstname lastname");
+    .populate("ride") // pour associer les infos du trajet à la review
+    .populate("reviewer", "username firstname lastname") // pour associer les infos de l'utilisateur qui a posté la review
+    .populate("reviewed", "username firstname lastname"); // pour associer les infos de l'utilisateur qui a reçu la review
 
   res.json({ result: true, reviews });
 });
@@ -45,7 +45,7 @@ router.delete("/delete/:reviewId", async (req, res) => {
   if (!user)
     return res.json({ result: false, error: "Utilisateur non trouvé" });
 
-  // On vérifie que la review appartient bien à cet utilisateur
+  // on vérifie que la review appartient bien à cet utilisateur
   const review = await Review.findOne({
     _id: req.params.reviewId,
     reviewer: user._id,
