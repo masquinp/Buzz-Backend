@@ -54,11 +54,16 @@ router.get("/", async (req, res) => {
 });
 
 router.delete("/delete/:rideId", async (req, res) => {
-  const ride = await Ride.deleteOne({ _id: req.params.rideId });
+  const user = await User.findOne({ token: req.body.token });
+  if (!user) {
+    return res.json({ result: false, error: "Utilisateur non trouvé" });
+  }
+
+  const ride = await Ride.deleteOne({ _id: req.params.rideId, user: user._id });
   if (ride.deletedCount > 0) {
     res.json({ result: true, message: "Trajet supprimé" });
   } else {
-    res.json({ result: false, error: "Trajet non trouvé" });
+    res.json({ result: false, error: "Trajet non trouvé ou non autorisé" });
   }
 });
 

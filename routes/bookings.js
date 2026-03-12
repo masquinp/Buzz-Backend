@@ -5,14 +5,6 @@ const Booking = require("../models/bookings");
 const User = require("../models/users");
 const Ride = require("../models/rides");
 
-router.get("/", (req, res) => {
-  Booking.find()
-    .populate("user", "ride")
-    .then((getBookings) => {
-      res.json({ result: true, bookings: getBookings });
-    });
-});
-
 router.get("/:token", (req, res) => {
   User.findOne({ token: req.params.token }).then((user) => {
     if (!user) {
@@ -66,14 +58,27 @@ router.post("/add", (req, res) => {
 });
 
 router.delete("/delete/:bookingId", (req, res) => {
-  // On utilise le token passé dans l'URL (params) pour savoir qui supprime la réservation, et on utilise l'ID de la réservation pour savoir laquelle supprimer
-  Booking.deleteOne({ _id: req.params.bookingId }).then((data) => {
-    // deletedCount vaut 1 si quelqu'un a été supprimé, 0 sinon
-    if (data.deletedCount > 0) {
-      res.json({ result: true, message: "Réservation supprimé avec succès" });
-    } else {
-      res.json({ result: false, error: "Réservation non trouvé" });
+  User.findOne({ token: req.body.token }).then((user) => {
+    if (!user) {
+      return res.json({ result: false, error: "Utilisateur non trouvé" });
     }
+    // On utilise le token passé dans l'URL (params) pour savoir qui supprime la réservation, et on utilise l'ID de la réservation pour savoir laquelle supprimer
+    Booking.deleteOne({ _id: req.params.bookingId, user: user._id }).then(
+      (data) => {
+        // deletedCount vaut 1 si quelqu'un a été supprimé, 0 sinon
+        if (data.deletedCount > 0) {
+          res.json({
+            result: true,
+            message: "Réservation supprimée avec succès",
+          });
+        } else {
+          res.json({
+            result: false,
+            error: "Réservation non trouvée ou non autorisée",
+          });
+        }
+      },
+    );
   });
 });
 

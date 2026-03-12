@@ -14,15 +14,15 @@ router.post("/add", async (req, res) => {
     username: user.username,
     message: req.body.message,
     booking: req.body.booking,
-    sender: user._id,
+    sender: user._id, 
     receiver: req.body.receiver,
   });
 
   const savedMessage = await newMessage.save();
   // On populate l'user pour renvoyer ses infos au frontend
-  await savedMessage.populate("sender", "username firstname lastname");
+  await savedMessage.populate("sender", "username firstname lastname avatar");
   // On populate aussi le receiver pour que le frontend puisse afficher les infos de l'autre personne
-  await savedMessage.populate("receiver", "username firstname lastname");
+  await savedMessage.populate("receiver", "username firstname lastname avatar");
 
   res.json({ result: true, message: savedMessage });
 });

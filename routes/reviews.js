@@ -34,8 +34,8 @@ router.get("/:token", async (req, res) => {
   // Les reviews que cet utilisateur a reçues
   const reviews = await Review.find({ reviewed: user._id })
     .populate("ride") // pour associer les infos du trajet à la review
-    .populate("reviewer", "username firstname lastname") // pour associer les infos de l'utilisateur qui a posté la review
-    .populate("reviewed", "username firstname lastname"); // pour associer les infos de l'utilisateur qui a reçu la review
+    .populate("reviewer", "username firstname lastname avatar") // pour associer les infos de l'utilisateur qui a posté la review
+    .populate("reviewed", "username firstname lastname avatar"); // pour associer les infos de l'utilisateur qui a reçu la review
 
   res.json({ result: true, reviews });
 });
