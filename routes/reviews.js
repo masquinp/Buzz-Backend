@@ -34,8 +34,8 @@ router.get("/:token", async (req, res) => {
   // Les reviews que cet utilisateur a reçues
   const reviews = await Review.find({ reviewed: user._id })
     .populate("ride")
-    .populate("reviewer", "username firstname lastname")
-    .populate("reviewed", "username firstname lastname");
+    .populate("reviewer", "username firstname lastname avatar")
+    .populate("reviewed", "username firstname lastname avatar");
 
   res.json({ result: true, reviews });
 });
