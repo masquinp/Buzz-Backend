@@ -86,19 +86,19 @@ router.delete("/delete/:bookingId", (req, res) => {
   });
 });
 
-// à utiliser côté conducteur pour accepter/refuser une réservation (et à l'améliorer)
-router.put("/updateStatus", (req, res) => {
-  // On cherche le booking par son ID envoyé dans le body
-  Booking.findById(req.body.bookingId).then((data) => {
-    if (data) {
-      data.status = req.body.status; // On met à jour le statut
-      data.save().then((updatedBooking) => {
-        res.json({ result: true, booking: updatedBooking });
-      });
-    } else {
-      res.json({ result: false, error: "Booking non trouvé" });
-    }
-  });
-});
+// // à utiliser côté conducteur pour accepter/refuser une réservation (et à l'améliorer)
+// router.put("/updateStatus", (req, res) => {
+//   // On cherche le booking par son ID envoyé dans le body
+//   Booking.findById(req.body.bookingId).then((data) => {
+//     if (data) {
+//       data.status = req.body.status; // On met à jour le statut
+//       data.save().then((updatedBooking) => {
+//         res.json({ result: true, booking: updatedBooking });
+//       });
+//     } else {
+//       res.json({ result: false, error: "Booking non trouvé" });
+//     }
+//   });
+// });
 
 module.exports = router;
