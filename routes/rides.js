@@ -4,33 +4,35 @@ const Ride = require("../models/rides");
 const User = require("../models/users");
 const Booking = require("../models/bookings");
 
+const { checkBody } = require("../modules/checkBody");
+
+
 router.post("/add", (req, res) => {
-  const { departure, arrival, date, price, placesTotal, user } = req.body;
-
-  if (!departure || !arrival || !date || !price || !placesTotal || !user) {
-    return res.json({ result: false, error: "Remplir tous les champs." });
+  if (!checkBody(req.body, ["departure", "arrival", "date", "price", "placesTotal", "user"])) {
+    return res.json({ result: false, error: "Champs manquants ou vides" });
   }
 
-  // on vérifie que le nombre de places est un nombre positif
-  if (placesTotal <= 0) {
-    return res.json({
-      result: false,
-      error: "Nombre de places disponible invalide",
-    });
+   // on vérifie que le nombre de places est un nombre positif
+  if (req.body.placesTotal <= 0) {
+    return res.json({ result: false, error: "Nombre de places invalide" });
+  }
+ // pareil pour le prix
+  if (req.body.price <= 0) {
+    return res.json({ result: false, error: "Prix invalide" });
   }
 
-  User.findOne({ token: user }).then((user) => {
+  User.findOne({ token: req.body.user }).then((user) => {
     if (!user) {
       return res.json({ result: false, error: "Utilisateur non trouvé" });
     }
 
     const newRide = new Ride({
-      departure,
-      arrival,
-      date,
-      price,
-      placesTotal,
-      user: user._id, // on associe le trajet à l'id de l'utilisateur qui l'a créé
+      departure: req.body.departure,
+      arrival: req.body.arrival,
+      date: req.body.date,
+      price: req.body.price,
+      placesTotal: req.body.placesTotal,
+      user: user._id,
     });
 
     newRide.save().then((data) => {
@@ -39,6 +41,7 @@ router.post("/add", (req, res) => {
   });
 });
 
+// récupère les trajets créés par un utilisateur spécifique
 router.get("/:token", async (req, res) => {
   const user = await User.findOne({ token: req.params.token });
   if (!user) {
@@ -48,6 +51,8 @@ router.get("/:token", async (req, res) => {
   res.json({ result: true, rides: ride });
 });
 
+
+// récupère tous les trajets disponibles avec les infos du conducteur
 router.get("/", async (req, res) => {
   const rides = await Ride.find().populate("user", "firstname lastname car"); // pour associer les infos de l'utilisateur (le chauffeur) à chaque trajet
   res.json({ result: true, rides });

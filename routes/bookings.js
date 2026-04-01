@@ -5,6 +5,8 @@ const Booking = require("../models/bookings");
 const User = require("../models/users");
 const Ride = require("../models/rides");
 
+
+// mes réservations
 router.get("/:token", (req, res) => {
   User.findOne({ token: req.params.token }).then((user) => {
     if (!user) {
@@ -27,6 +29,7 @@ router.get("/:token", (req, res) => {
   });
 });
 
+// créer une réservation
 router.post("/add", (req, res) => {
   User.findOne({ token: req.body.token }).then((user) => {
     if (!user) {
@@ -57,6 +60,7 @@ router.post("/add", (req, res) => {
   });
 });
 
+//supprimer une réservation
 router.delete("/delete/:bookingId", (req, res) => {
   User.findOne({ token: req.body.token }).then((user) => {
     if (!user) {

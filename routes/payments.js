@@ -3,6 +3,8 @@ const router = express.Router();
 const Payment = require("../models/payments");
 const User = require("../models/users");
 
+
+// récupère tous les paiements d'un utilisateur avec les infos de la réservation associée
 router.get("/:token", (req, res) => {
   User.findOne({ token: req.params.token }).then((user) => {
     if (!user) {
@@ -16,6 +18,8 @@ router.get("/:token", (req, res) => {
   });
 });
 
+
+// crée un paiement pour une réservation
 router.post("/add", (req, res) => {
   User.findOne({ token: req.body.token }).then((user) => {
     if (!user) {

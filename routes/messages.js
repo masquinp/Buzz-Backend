@@ -3,6 +3,8 @@ const router = express.Router();
 const Message = require("../models/messages");
 const User = require("../models/users");
 
+
+// envoyer un message
 router.post("/add", async (req, res) => {
   const user = await User.findOne({ token: req.body.token });
 
@@ -27,6 +29,8 @@ router.post("/add", async (req, res) => {
   res.json({ result: true, message: savedMessage });
 });
 
+
+// récupère toutes les conversations d'un utilisateur
 router.get("/conversations/:token", (req, res) => {
   // on récupère l'utilisateur via son token
   User.findOne({ token: req.params.token }).then((user) => {
@@ -48,6 +52,8 @@ router.get("/conversations/:token", (req, res) => {
   });
 });
 
+
+// récupère tous les messages d'une conversation liée à une réservation spécifique
 router.get("/:bookingId", (req, res) => {
   // si bookingId est undefined ou manquant, on arrête
   if (!req.params.bookingId || req.params.bookingId === "undefined") {
@@ -55,6 +61,7 @@ router.get("/:bookingId", (req, res) => {
   }
   Message.find({ booking: req.params.bookingId })
     .populate("sender", "username firstname lastname")
+    .populate("receiver", "username firstname lastname")
     .sort({ createdAt: 1 }) // on trie du plus ancien au plus récent pour afficher dans le bon ordre
     .then((messages) => {
       res.json({ result: true, messages });

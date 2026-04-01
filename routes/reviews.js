@@ -4,6 +4,8 @@ const Review = require("../models/reviews");
 const Ride = require("../models/rides");
 const User = require("../models/users");
 
+
+// créer un avis après le trajet
 router.post("/add", async (req, res) => {
   const user = await User.findOne({ token: req.body.token });
   if (!user)
@@ -24,7 +26,10 @@ router.post("/add", async (req, res) => {
   const review = await newReview.save();
   res.json({ result: true, review });
 });
+ 
 
+
+// récupère tous les avis reçus par un utilisateur 
 router.get("/:token", async (req, res) => {
   const user = await User.findOne({ token: req.params.token });
   if (!user) {
@@ -40,6 +45,8 @@ router.get("/:token", async (req, res) => {
   res.json({ result: true, reviews });
 });
 
+
+// supprimer son avis
 router.delete("/delete/:reviewId", async (req, res) => {
   const user = await User.findOne({ token: req.body.token });
   if (!user)
@@ -53,11 +60,11 @@ router.delete("/delete/:reviewId", async (req, res) => {
   if (!review)
     return res.json({
       result: false,
-      error: "Review non trouvée",
+      error: "Avis non trouvé",
     });
 
   await Review.deleteOne({ _id: req.params.reviewId });
-  res.json({ result: true, message: "Review supprimée" });
+  res.json({ result: true, message: "Avis supprimé" });
 });
 
 module.exports = router;
